@@ -98,32 +98,40 @@ pip install -r requirements.txt
 Configure Environment Variables: See the Environment Configuration section.
 
 Running the Application
+
 Build and Start Services:
-docker-compose up --build
-Access the Web Interface: Open your browser and navigate to:
+```docker-compose up --build```
+
+Access the Web Interface after running frontend: Open your browser and navigate to:
 Streamlit App: http://localhost:8501
+
 Access Swagger Docs:
-Dataset Management Service: http://localhost/dataset/docs
-Metrics Service: http://localhost/metrics/docs
+
+Dataset Management Service: http://127.0.0.1/dataset/docs
+
+Metrics Service: http://127.0.0.1/metrics/docs
+
 Environment Configuration
 
 Create two .env files in the root directory: .env.dataset_management_service and .env.metrics_service.
 
 .env.dataset_management_service
-PROJECT_NAME=ml-metrics-tracker-dataset-management
+```PROJECT_NAME=ml-metrics-tracker-dataset-management
 MONGODB_URI=mongodb+srv://<username>:<password>@<cluster>.mongodb.net/?retryWrites=true&w=majority&appName=ml-metrics-tracker
 S3_BUCKET_NAME=ml-metrics-tracker
 AWS_ACCESS_KEY_ID=<your_aws_access_key_id>
 AWS_SECRET_ACCESS_KEY=<your_aws_secret_access_key>
 AWS_REGION=us-east-1
+```
 .env.metrics_service
+```
 PROJECT_NAME=ml-metrics-tracker-metrics
 MONGODB_URI=mongodb+srv://<username>:<password>@<cluster>.mongodb.net/?retryWrites=true&w=majority&appName=ml-metrics-tracker
-S3_BUCKET_NAME=ml-metrics-tracker
-AWS_ACCESS_KEY_ID=<your_aws_access_key_id>
-AWS_SECRET_ACCESS_KEY=<your_aws_secret_access_key>
-AWS_REGION=us-east-1
+MONGO_DB_NAME = metrics-data
+```
+
 Services Overview
+
 
 Dataset Management Service
 Handles:
