@@ -91,43 +91,6 @@ def extract_zip(zip_path, extract_to):
         print(f"Extracted contents of {zip_path} to {extract_to}")
 
 
-# def get_class_names(extract_to: str) -> list:
-#     """
-#     Get the folder names from the 'test' folder in the extracted directory.
-
-#     :param extract_to: Directory where the zip file was extracted.
-
-#     Returns:
-#     List[str]: Folder names inside the 'test' folder.
-#     """
-#     # Identify the dataset directory dynamically
-#     extracted_dir = next(
-#         (
-#             entry
-#             for entry in os.listdir(extract_to)
-#             if os.path.isdir(os.path.join(extract_to, entry))
-#         ),
-#         None,
-#     )
-
-#     if not extracted_dir:
-#         raise FileNotFoundError("No dataset directory found in the extracted path.")
-
-#     test_dir = os.path.join(extract_to, extracted_dir, "test")
-
-#     if not os.path.exists(test_dir):
-#         raise FileNotFoundError(f"'test' folder not found in path: {test_dir}")
-
-#     # List the directories inside the 'test' folder
-#     class_names = [
-#         folder
-#         for folder in os.listdir(test_dir)
-#         if os.path.isdir(os.path.join(test_dir, folder))
-#     ]
-
-#     return class_names
-
-
 def get_class_names(extract_to: str) -> list:
     """
     Get the folder names from the 'test' folder in the extracted directory.
@@ -173,58 +136,6 @@ def display_results(results):
         formatted_probs = ", ".join([f"{p:.2f}" for p in probabilities])
         print(f"{filename:<40} {predicted_class:<15} [{formatted_probs}]")
     print("\n")
-
-
-# if __name__ == "__main__":
-#     dataset_id = "673a04e2d0ab13fda4041fb8"
-#     model_type = "Swin"
-#     dataset_url = get_preprocess_data_url_by_id(dataset_id)
-#     print(f"dataset_url: {dataset_url}")
-
-#     # download and save the zip file
-#     if dataset_url:
-#         local_folder = "preprocessed"
-#         zip_file_path, target_dir = download_folder_from_s3(dataset_url, local_folder)
-#         print(
-#             f"""Preprocessed data downloaded to {local_folder}
-#             file path: {zip_file_path}"""
-#         )
-#     else:
-#         print("Failed to fetch dataset URL")
-
-#     # Check the zip file is corrupted
-#     zip_path = zip_file_path
-#     # with zipfile.ZipFile(zip_path, "r") as zip_ref:
-#     #     print(zip_ref.namelist())
-
-#     if is_zipfile(zip_path):
-#         print("The file is a valid zip.")
-#     else:
-#         print("The file is not a valid zip.")
-
-#     # extract
-#     if zip_file_path:
-#         extract_to = f"{target_dir}/extract"
-#         extract_zip(zip_file_path, extract_to)
-#     else:
-#         print("Failed to extract and validate zip file")
-
-#     # get class names
-#     extract_dir = f"{extract_to}"
-#     class_names = get_class_names(extract_dir)
-#     print(f"Class names: {class_names}")
-
-#     test_dir = f"{extract_to}/test/Ischemich"
-
-#     for single_class in class_names:
-#         try:
-#             test_dir = f"{extract_to}/test/{single_class}"
-#             results = classify_images(test_dir, model_type, class_names)
-#             print(f"Results: {results} Test Class :{class_names}")
-#             display_results(results)
-
-#         except Exception as e:
-#             print(f"Error: {e}")
 
 
 def clean_dataset_directory(root_dir):

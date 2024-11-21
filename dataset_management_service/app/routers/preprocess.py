@@ -77,12 +77,6 @@ async def upload_and_preprocess_dataset(
         "hue": hue if hue is not None else 0,  # Default to 0 (no hue change)
     }
 
-    # # Step 1: Validate file type
-    # if not file.filename.endswith(".zip"):
-    #     raise HTTPException(
-    #         status_code=400, detail="Invalid file type. Only zip files are allowed."
-    #     )
-
     # Step 1: Retrieve dataset metadata from MongoDB using dataset_id
     try:
         dataset = db.datasets.find_one({"_id": ObjectId(dataset_id)})
@@ -173,67 +167,3 @@ async def upload_and_preprocess_dataset(
             "preprocessing_steps": preprocessing_steps,
         },
     )
-
-    # # Step 2: Generate a unique folder name if dataset_name is not provided
-    # folder_name = dataset_name if dataset_name else str(uuid.uuid4())
-    # dataset_path = os.path.join(DATASET_STORAGE_PATH, folder_name)
-
-    # # Step 3: Ensure unique path
-    # if os.path.exists(dataset_path):
-    #     raise HTTPException(
-    #         status_code=400,
-    #         detail="Dataset with this name already exists. Choose a unique name.",
-    #     )
-
-    # os.makedirs(dataset_path, exist_ok=True)
-
-    # # Step 4: Save and unzip the file
-    # try:
-    #     zip_path = os.path.join(dataset_path, file.filename)
-    #     with open(zip_path, "wb") as buffer:
-    #         shutil.copyfileobj(file.file, buffer)
-
-    #     # Extract zip and validate contents
-    #     dataset_structure = validate_and_extract_zip(zip_path, dataset_path)
-
-    #     # Define preprocessing options based on user inputs
-    #     preprocessing_steps = {
-    #         "resize": resize,
-    #         "grayscale": grayscale,
-    #         "normalize": normalize,
-    #         "rotation": rotation,
-    #         "horizontal_flip": horizontal_flip,
-    #         "vertical_flip": vertical_flip,
-    #         "brightness": brightness,
-    #         "contrast": contrast,
-    #         "saturation": saturation,
-    #         "hue": hue,
-    #     }
-
-    #     # Apply preprocessing and save in 'preprocessed' folder
-    #     preprocess_path = os.path.join(dataset_path, "preprocessed")
-    #     processed_structure = preprocess_images(
-    #         dataset_path, preprocess_path, preprocessing_steps
-    #     )
-
-    # except zipfile.BadZipFile:
-    #     shutil.rmtree(dataset_path)
-    #     raise HTTPException(
-    #         status_code=400, detail="Invalid zip file or unable to extract contents."
-    #     )
-    # except Exception as e:
-    #     shutil.rmtree(dataset_path)
-    #     raise HTTPException(
-    #         status_code=500,
-    #         detail=f"An error occurred while processing the file: {str(e)}",
-    #     )
-
-    # return JSONResponse(
-    #     status_code=201,
-    #     content={
-    #         "message": "Dataset uploaded, extracted, and preprocessed successfully.",
-    #         "dataset_name": folder_name,
-    #         "original_structure": dataset_structure,
-    #         "preprocessed_structure": processed_structure,
-    #     },
-    # )

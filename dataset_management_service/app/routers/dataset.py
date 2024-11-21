@@ -21,9 +21,6 @@ from app.services.dataset import (
     get_dataset_by_id,
 )
 
-# from app.models.dataset import DatasetDetail
-
-
 router = APIRouter()
 
 DATASET_STORAGE_PATH = "app/datasets"
@@ -31,10 +28,29 @@ DATASET_STORAGE_PATH = "app/datasets"
 
 @router.post("/upload-dataset")
 async def upload_dataset(file: UploadFile, dataset_name: Optional[str] = Form(None)):
+    """
+    Uploads a dataset zip file, validates its contents, and stores metadata.
+
+    Args:
+        file (UploadFile): The uploaded zip file containing the dataset.
+        dataset_name (Optional[str], optional): The desired name for the
+        dataset.
+            If not provided, a unique name will be generated.
+
+    Returns:
+        JSONResponse: A JSON response containing a success message, metadata
+        ID, and metadata details.
+
+    Raises:
+        HTTPException: Various exceptions depending on failure points, such as
+        invalid file type,
+            failed validation, or database errors.
+    """
     # Step 1: Validate file type
     if not file.filename.endswith(".zip"):
         raise HTTPException(
-            status_code=400, detail="Invalid file type. Only zip files are allowed."
+            status_code=400,
+            detail="Invalid file type. Only zip files are allowed.",
         )
 
     # Generate a unique folder name if dataset_name is not provided
@@ -51,7 +67,8 @@ async def upload_dataset(file: UploadFile, dataset_name: Optional[str] = Form(No
                 shutil.copyfileobj(file.file, buffer)
         except Exception as e:
             raise HTTPException(
-                status_code=500, detail=f"Failed to save zip file locally: {str(e)}"
+                status_code=500,
+                detail=f"Failed to save zip file locally: {str(e)}",
             )
 
         # Step 3: Validate and extract zip contents
@@ -61,7 +78,8 @@ async def upload_dataset(file: UploadFile, dataset_name: Optional[str] = Form(No
             raise e  # Return HTTPException directly if validation fails
         except Exception as e:
             raise HTTPException(
-                status_code=500, detail=f"Failed to validate zip contents: {str(e)}"
+                status_code=500,
+                detail=f"Failed to validate zip contents: {str(e)}",
             )
 
         # Step 4: Upload the validated zip and extracted folders to S3
@@ -72,40 +90,10 @@ async def upload_dataset(file: UploadFile, dataset_name: Optional[str] = Form(No
                 zip_path_s3 = upload_file_to_s3(
                     zip_file_obj, settings.S3_BUCKET_NAME, zip_s3_key
                 )
-            # extracted_s3_paths: Dict[str, List[str]] = {}
-            # for split in ["train", "valid", "test"]:
-            #     split_path = os.path.join(temp_dir, base_dir, split)
-            #     extracted_s3_paths[split] = {}
-            #     if os.path.exists(split_path):
-            #         for class_folder in os.listdir(split_path):
-            #             class_path = os.path.join(split_path, class_folder)
-            #             if os.path.isdir(class_path):
-            #                 class_s3_key = (
-            #                     f"{folder_name}/unzipped/{split}/{class_folder}/"
-            #                 )
-            #                 image_files = os.listdir(class_path)
-            #                 file_paths = [
-            #                     os.path.join(class_path, image_file)
-            #                     for image_file in image_files
-            #                 ]
-            #                 file_keys = [
-            #                     f"{class_s3_key}{image_file}"
-            #                     for image_file in image_files
-            #                 ]
-
-            #                 # Use ThreadPoolExecutor for parallel uploads
-            #                 with concurrent.futures.ThreadPoolExecutor() as executor:
-            #                     executor.map(
-            #                         lambda p: upload_file_to_s3(
-            #                             open(p[0], "rb"), settings.S3_BUCKET_NAME,
-            # p[1],
-            #                         ),
-            #                         zip(file_paths, file_keys),
-            #                     )
-            #                 extracted_s3_paths[split][class_folder] = class_s3_key
         except Exception as e:
             raise HTTPException(
-                status_code=500, detail=f"Failed to upload dataset to S3: {str(e)}"
+                status_code=500,
+                detail=f"Failed to upload dataset to S3: {str(e)}",
             )
 
     # Step 5: Save metadata to MongoDB
@@ -152,7 +140,13 @@ async def upload_dataset(file: UploadFile, dataset_name: Optional[str] = Form(No
 @router.get("/datasets")
 async def list_datasets():
     """
-    Endpoint to fetch a list of available datasets.
+    Retrieves a list of all available datasets.
+
+    Returns:
+        List[dict]: A list of dataset metadata dictionaries.
+
+    Raises:
+        HTTPException: If no datasets are found or if an error occurs during retrieval.
     """
     try:
         datasets = get_all_datasets()
@@ -164,39 +158,22 @@ async def list_datasets():
         raise HTTPException(status_code=500, detail=f"Error: {str(e)}")
 
 
-# @router.get("/datasets/{dataset_id}/download-preprocessed")
-# async def download_preprocessed_dataset(dataset_id: str):
-#     """
-#     Endpoint to download the preprocessed data folder for a dataset.
-#     """
-#     with tempfile.TemporaryDirectory() as temp_dir:
-#         local_dir = os.path.join(temp_dir, dataset_id)
-#         try:
-#             generate_presigned_url(dataset_id, local_dir)
-#             zip_file_path = shutil.make_archive(local_dir, "zip", local_dir)
-#         except Exception as e:
-#             raise HTTPException(status_code=500, detail=f"Error: {str(e)}")
-
-
-#         return FileResponse(
-#             zip_file_path, media_type="application/zip", filename=f"{dataset_id}.zip"
-#         )
-# @router.get("/datasets/{dataset_id}/download")
-# async def download_dataset(dataset_id: str):
-#     dataset = get_dataset_by_id(dataset_id)
-#     preprocessed_path = dataset.get("preprocessed_path")
-#     if not preprocessed_path:
-#         raise HTTPException(status_code=404, detail="Preprocessed data not found.")
-
-#     bucket_name, object_key = parse_s3_uri(preprocessed_path)
-#     print(bucket_name, object_key)
-#     presigned_url = generate_presigned_url(bucket_name, object_key)
-
-#     return {"download_url": presigned_url}
-
-
 @router.get("/datasets/{dataset_id}/download")
 async def download_dataset(dataset_id: str):
+    """
+    Generates a presigned URL for downloading the specified dataset.
+
+    Args:
+        dataset_id (str): The unique identifier of the dataset to download.
+
+    Returns:
+        dict: A dictionary containing the presigned download URL.
+
+    Raises:
+        HTTPException: If the dataset is not found or if neither the
+        preprocessed nor the zip path is available.
+    """
+
     # Fetch dataset by ID
     dataset = get_dataset_by_id(dataset_id)
     if not dataset:

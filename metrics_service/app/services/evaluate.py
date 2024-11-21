@@ -58,50 +58,6 @@ def load_model(model_id: str):
         raise ValueError("Invalid model_id. Choose from 'vit', 'swin', or 'deit'.")
 
 
-# class FilteredImageFolder(DatasetFolder):
-#     def __init__(self, root, transform=None):
-#         super().__init__(
-#             root, loader=self.pil_loader, extensions=("jpg", "jpeg", "png")
-#         )
-#         self.transform = transform
-
-#     @staticmethod
-#     def pil_loader(path):
-#         try:
-#             with open(path, "rb") as f:
-#                 img = Image.open(f)
-#                 img.verify()  # Verify the file is a valid image
-#                 img = Image.open(path)  # Reopen for actual processing
-#                 return img.convert("RGB")
-#         except (UnidentifiedImageError, OSError):
-#             print(f"Skipping invalid or hidden image: {path}")
-#             return None
-
-#     def __getitem__(self, index):
-#         path, target = self.samples[index]
-#         # Skip files inside hidden directories like __MACOSX or starting with "._"
-#         if "__MACOSX" in path or os.path.basename(path).startswith("._"):
-#             print(f"Skipping hidden or invalid image: {path}")
-#             return self.__getitem__(
-#                 (index + 1) % len(self.samples)
-#             )  # Move to next item
-#         sample = self.loader(path)
-#         if sample is None:  # If the image is invalid, skip this entry
-#             print(f"Invalid image file encountered: {path}")
-#             return self.__getitem__(
-#                 (index + 1) % len(self.samples)
-#             )  # Move to next item
-#         if self.transform is not None:
-#             sample = self.transform(sample)
-#         return sample, target
-
-#     def is_valid_file(self, path):
-#         # Ensure files are not hidden or in __MACOSX
-#         if "__MACOSX" in path or os.path.basename(path).startswith("._"):
-#             return False
-#         return super().is_valid_file(path)
-
-
 class FilteredImageFolder(DatasetFolder):
     def __init__(self, root, transform=None):
         super().__init__(

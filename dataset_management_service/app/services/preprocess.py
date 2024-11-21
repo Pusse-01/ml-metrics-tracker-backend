@@ -7,35 +7,6 @@ from torchvision import transforms
 from typing import Dict, Tuple, Union
 from app.dependencies.s3_client import s3_client
 
-# import concurrent.futures
-
-
-# def upload_preprocessed_files_to_s3(local_dir: str, bucket_name: str, s3_prefix: str):
-#     """
-#     Uploads files from a local directory to an S3 bucket under the specified prefix.
-
-#     :param local_dir: Path to the local directory containing files to upload
-#     :param bucket_name: Name of the S3 bucket
-#     :param s3_prefix: S3 key prefix where files will be uploaded
-#     """
-#     file_paths = []
-#     file_keys = []
-
-#     for root, _, files in os.walk(local_dir):
-#         for file in files:
-#             local_file_path = os.path.join(root, file)
-#             relative_path = os.path.relpath(local_file_path, local_dir)
-#             s3_key = os.path.join(s3_prefix, relative_path).replace("\\", "/")
-#             file_paths.append(local_file_path)
-#             file_keys.append(s3_key)
-
-#     def upload_file(file_path: str, key: str):
-#         with open(file_path, "rb") as f:
-#             s3_client.upload_fileobj(f, bucket_name, key)
-
-#     with concurrent.futures.ThreadPoolExecutor() as executor:
-#         executor.map(upload_file, file_paths, file_keys)
-
 
 def upload_preprocessed_zip_to_s3(
     local_dir: str,

@@ -157,37 +157,10 @@ def validate_and_extract_zip(zip_path, extract_to):
     return dataset_structure, base_dir
 
 
-# def parse_s3_uri(s3_uri: str) -> Tuple[str, str]:
-#     """
-#     Parses an S3 URI and returns the bucket name and key.
-
-#     :param s3_uri: S3 URI in the format s3://bucket_name/key
-#     :return: Tuple of bucket name and key
-#     """
-#     if s3_uri.startswith("s3://"):
-#         s3_uri = s3_uri[5:]
-#         bucket_name, key = s3_uri.split("/", 1)
-#         return bucket_name, key
-#     else:
-#         raise ValueError("Invalid S3 URI")
-
-
 def get_all_datasets():
     """Fetch all datasets from the database."""
     datasets = db.datasets.find()
     return [serialize_document(dataset) for dataset in datasets]
-
-
-# def get_dataset_by_id(dataset_id: str):
-#     """Fetch dataset details by ID."""
-#     if not ObjectId.is_valid(dataset_id):
-#         raise HTTPException(status_code=400, detail="Invalid dataset ID format.")
-
-#     dataset = db.datasets.find_one({"_id": ObjectId(dataset_id)})
-#     if not dataset:
-#         raise HTTPException(status_code=404, detail="Dataset not found.")
-
-#     return dataset
 
 
 def download_preprocessed_folder(dataset_id: str, local_dir: str):
