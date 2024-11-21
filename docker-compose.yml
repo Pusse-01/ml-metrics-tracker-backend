@@ -1,0 +1,57 @@
+services:
+  traefik:
+    image: traefik:v2.4
+    command:
+      - "--providers.docker=true"
+      - "--entrypoints.web.address=:80"
+      - "--api.insecure=true"
+      - "--log.level=DEBUG"
+    ports:
+      - "80:80"
+      - "8080:8080"  # Optional: Traefik dashboard
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+    networks:
+      - microservices_net
+
+  metrics_service:
+    build:
+      context: ./metrics_service
+    deploy:
+      resources:
+        limits:
+            cpus: '2.0'
+            memory: 4G
+    shm_size: '2gb'
+    environment:
+    - ROOT_PATH=/metrics
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.metrics_service.rule=PathPrefix(`/metrics`)"
+      - "traefik.http.middlewares.metrics_service_stripprefix.stripprefix.prefixes=/metrics"
+      - "traefik.http.routers.metrics_service.middlewares=metrics_service_stripprefix"
+      - "traefik.http.services.metrics_service.loadbalancer.server.port=8000"
+      - "traefik.http.middlewares.metrics_service_stripprefix.stripprefix.forceslash=false"
+    networks:
+      - microservices_net
+
+  dataset_management_service:
+    build:
+      context: ./dataset_management_service
+    env_file:
+      - .env.dataset_management_service
+    environment:
+    - ROOT_PATH=/dataset
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.dataset_service.rule=PathPrefix(`/dataset`)"
+      - "traefik.http.middlewares.dataset_service_stripprefix.stripprefix.prefixes=/dataset"
+      - "traefik.http.routers.dataset_service.middlewares=dataset_service_stripprefix"
+      - "traefik.http.services.dataset_service.loadbalancer.server.port=8001"
+      - "traefik.http.middlewares.dataset_service_stripprefix.stripprefix.forceslash=false"
+    networks:
+      - microservices_net
+
+networks:
+  microservices_net:
+    driver: bridge

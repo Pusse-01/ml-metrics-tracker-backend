@@ -1,6 +1,6 @@
 from fastapi import APIRouter, UploadFile, HTTPException, Form
 from fastapi.responses import JSONResponse
-from typing import Dict, List, Optional
+from typing import Optional  # Dict, List,
 import shutil
 import os
 import datetime
@@ -12,7 +12,8 @@ from app.services.dataset import (
 )
 from app.core.config import settings
 from app.db.database import db
-import concurrent.futures
+
+# import concurrent.futures
 from app.services.dataset import (
     get_all_datasets,
     generate_presigned_url,
@@ -71,36 +72,37 @@ async def upload_dataset(file: UploadFile, dataset_name: Optional[str] = Form(No
                 zip_path_s3 = upload_file_to_s3(
                     zip_file_obj, settings.S3_BUCKET_NAME, zip_s3_key
                 )
-            extracted_s3_paths: Dict[str, List[str]] = {}
-            for split in ["train", "valid", "test"]:
-                split_path = os.path.join(temp_dir, base_dir, split)
-                extracted_s3_paths[split] = {}
-                if os.path.exists(split_path):
-                    for class_folder in os.listdir(split_path):
-                        class_path = os.path.join(split_path, class_folder)
-                        if os.path.isdir(class_path):
-                            class_s3_key = (
-                                f"{folder_name}/unzipped/{split}/{class_folder}/"
-                            )
-                            image_files = os.listdir(class_path)
-                            file_paths = [
-                                os.path.join(class_path, image_file)
-                                for image_file in image_files
-                            ]
-                            file_keys = [
-                                f"{class_s3_key}{image_file}"
-                                for image_file in image_files
-                            ]
+            # extracted_s3_paths: Dict[str, List[str]] = {}
+            # for split in ["train", "valid", "test"]:
+            #     split_path = os.path.join(temp_dir, base_dir, split)
+            #     extracted_s3_paths[split] = {}
+            #     if os.path.exists(split_path):
+            #         for class_folder in os.listdir(split_path):
+            #             class_path = os.path.join(split_path, class_folder)
+            #             if os.path.isdir(class_path):
+            #                 class_s3_key = (
+            #                     f"{folder_name}/unzipped/{split}/{class_folder}/"
+            #                 )
+            #                 image_files = os.listdir(class_path)
+            #                 file_paths = [
+            #                     os.path.join(class_path, image_file)
+            #                     for image_file in image_files
+            #                 ]
+            #                 file_keys = [
+            #                     f"{class_s3_key}{image_file}"
+            #                     for image_file in image_files
+            #                 ]
 
-                            # Use ThreadPoolExecutor for parallel uploads
-                            with concurrent.futures.ThreadPoolExecutor() as executor:
-                                executor.map(
-                                    lambda p: upload_file_to_s3(
-                                        open(p[0], "rb"), settings.S3_BUCKET_NAME, p[1]
-                                    ),
-                                    zip(file_paths, file_keys),
-                                )
-                            extracted_s3_paths[split][class_folder] = class_s3_key
+            #                 # Use ThreadPoolExecutor for parallel uploads
+            #                 with concurrent.futures.ThreadPoolExecutor() as executor:
+            #                     executor.map(
+            #                         lambda p: upload_file_to_s3(
+            #                             open(p[0], "rb"), settings.S3_BUCKET_NAME,
+            # p[1],
+            #                         ),
+            #                         zip(file_paths, file_keys),
+            #                     )
+            #                 extracted_s3_paths[split][class_folder] = class_s3_key
         except Exception as e:
             raise HTTPException(
                 status_code=500, detail=f"Failed to upload dataset to S3: {str(e)}"
@@ -122,7 +124,7 @@ async def upload_dataset(file: UploadFile, dataset_name: Optional[str] = Form(No
         "name": folder_name,
         "zip_path": zip_path_s3,
         "unzipped_path": unzipped_s3_path,
-        "unzipped_folder_structure": extracted_s3_paths,
+        "unzipped_folder_structure": "",
         "data_count": data_count,
         "classes": classes,
         "created_at": datetime.datetime.utcnow().isoformat(),
@@ -179,15 +181,44 @@ async def list_datasets():
 #         return FileResponse(
 #             zip_file_path, media_type="application/zip", filename=f"{dataset_id}.zip"
 #         )
+# @router.get("/datasets/{dataset_id}/download")
+# async def download_dataset(dataset_id: str):
+#     dataset = get_dataset_by_id(dataset_id)
+#     preprocessed_path = dataset.get("preprocessed_path")
+#     if not preprocessed_path:
+#         raise HTTPException(status_code=404, detail="Preprocessed data not found.")
+
+#     bucket_name, object_key = parse_s3_uri(preprocessed_path)
+#     print(bucket_name, object_key)
+#     presigned_url = generate_presigned_url(bucket_name, object_key)
+
+#     return {"download_url": presigned_url}
+
+
 @router.get("/datasets/{dataset_id}/download")
 async def download_dataset(dataset_id: str):
+    # Fetch dataset by ID
     dataset = get_dataset_by_id(dataset_id)
-    preprocessed_path = dataset.get("preprocessed_path")
-    if not preprocessed_path:
-        raise HTTPException(status_code=404, detail="Preprocessed data not found.")
+    if not dataset:
+        raise HTTPException(status_code=404, detail="Dataset not found.")
 
-    bucket_name, object_key = parse_s3_uri(preprocessed_path)
-    print(bucket_name, object_key)
+    # Check for preprocessed path or fallback to zip path
+    preprocessed_path = dataset.get("preprocessed_path")
+    zip_path = dataset.get("zip_path")
+
+    if preprocessed_path:
+        # Generate presigned URL for preprocessed path
+        bucket_name, object_key = parse_s3_uri(preprocessed_path)
+    elif zip_path:
+        # Generate presigned URL for zip path
+        bucket_name, object_key = parse_s3_uri(zip_path)
+    else:
+        # Return error if neither is available
+        raise HTTPException(
+            status_code=404, detail="Dataset or preprocessed data not found."
+        )
+
+    # Generate presigned URL
     presigned_url = generate_presigned_url(bucket_name, object_key)
 
     return {"download_url": presigned_url}

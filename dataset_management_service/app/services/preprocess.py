@@ -207,7 +207,8 @@ def preprocess_images(
                         # print(f"Saved transformed image to: {save_path}")
 
                 except Exception as e:
-                    return f"Error processing {img_file}: {e}"
+                    print(f"Error processing {img_file}: {e}")
+                    continue
 
     # print(f"Final dataset structure: {dataset_structure}")
     return dataset_structure

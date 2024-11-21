@@ -1,9 +1,14 @@
+import os
 from fastapi import FastAPI
-from app.routers import users
+from app.routers import metrics
 
-app = FastAPI(title="Dataset Management service")
+app = FastAPI(
+    title="Metrics Management Service",
+    root_path=os.getenv("ROOT_PATH", ""),
+    root_path_in_servers=True,
+)
 
-app.include_router(users.router)
+app.include_router(metrics.router)
 
 
 @app.get("/")
