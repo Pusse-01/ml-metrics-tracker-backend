@@ -1,0 +1,18 @@
+# Exclude virtual environments
+venv/
+.venv/
+
+# Exclude Git repository
+.git/
+.gitignore
+
+# Exclude Python cache files
+__pycache__/
+*.pyc
+
+# Exclude OS-specific files
+.DS_Store
+
+# Exclude other unnecessary files or directories
+*.log
+*.sqlite3
