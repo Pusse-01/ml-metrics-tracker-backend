@@ -17,6 +17,8 @@ services:
   metrics_service:
     build:
       context: ./metrics_service
+    env_file:
+      - .env.dataset_management_service
     deploy:
       resources:
         limits:

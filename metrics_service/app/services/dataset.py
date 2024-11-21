@@ -4,8 +4,8 @@ from urllib.parse import urlparse
 import zipfile
 from fastapi import HTTPException
 
-# API_URL = "http://dataset_management_service:8001"
-API_URL = "http://127.0.0.1:8001"
+API_URL = "http://dataset_management_service:8001"
+# API_URL = "http://127.0.0.1:8001"
 
 
 def get_preprocess_data_url_by_id(dataset_id: str):

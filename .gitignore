@@ -166,5 +166,6 @@ metrics_service/app/ml_models/
 
 # .gitignore
 .env.dataset_management_service
+.env.metrics_service
 
 metrics_service/preprocessed
