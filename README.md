@@ -130,45 +130,65 @@ MONGODB_URI=mongodb+srv://<username>:<password>@<cluster>.mongodb.net/?retryWrit
 MONGO_DB_NAME = metrics-data
 ```
 
-Services Overview
+## Services Overview
 
+### Dataset Management Service Handles:
+- Dataset upload and validation.
+- Dataset preprocessing.
+- Data storage in MongoDB and AWS S3.
 
-Dataset Management Service
-Handles:
+### Metrics Service Handles:
+- Model evaluation (e.g., accuracy, F1 score).
+- Metrics storage in MongoDB.
+- Metrics retrieval.
 
-Dataset upload and validation.
-Dataset preprocessing.
-Data storage in MongoDB and AWS S3.
-Metrics Service
-Handles:
+---
 
-Model evaluation (e.g., accuracy, F1 score).
-Metrics storage in MongoDB.
-Metrics retrieval.
-API Endpoints
+## API Endpoints
 
-Service	Endpoint	Method	Description
-Dataset Management	/datasets/upload	POST	Upload a new dataset.
-/datasets/preprocess	POST	Preprocess a dataset.
-Metrics Service	/metrics/evaluate	GET	Evaluate a model's metrics.
-/metrics/save	POST	Save evaluated metrics to the database.
-/metrics/retrieve	GET	Retrieve saved metrics.
-Testing
+| Service              | Endpoint              | Method | Description                                    |
+|----------------------|-----------------------|--------|------------------------------------------------|
+| Dataset Management   | `/datasets/upload`   | POST   | Upload a new dataset.                         |
+| Dataset Management   | `/datasets/preprocess` | POST   | Preprocess a dataset.                         |
+| Metrics Service      | `/metrics/evaluate`  | GET    | Evaluate a model's metrics.                  |
+| Metrics Service      | `/metrics/save`      | POST   | Save evaluated metrics to the database.       |
+| Metrics Service      | `/metrics/retrieve`  | GET    | Retrieve saved metrics.                       |
 
-Testing with pytest is not yet implemented. Manual testing can be done via Postman or Curl.
+---
 
-Known Issues
+## Testing
 
-Shared Memory Limitations: Resolved by setting shm_size: "256m" in docker-compose.yml.
-Environment Consistency: Resolved by synchronizing requirements.txt across environments.
-Future Enhancements
+- **Testing with pytest**: Not yet implemented.
+- **Manual Testing**: Can be done via Postman or Curl by calling the respective API endpoints.
 
-Add pytest for automated testing.
-Optimize the dataset preprocessing pipeline.
-Enhance the web interface for better user experience.
-License
+---
+
+## Known Issues
+
+- **Shared Memory Limitations**:
+  - Resolved by setting `shm_size: "256m"` in `docker-compose.yml`.
+
+- **Environment Consistency**:
+  - Resolved by synchronizing `requirements.txt` across environments.
+
+---
+
+## Future Enhancements
+
+- Add pytest for automated testing.
+- Optimize the dataset preprocessing pipeline.
+- Enhance the web interface for better user experience.
+
+---
+
+## License
 
 This project is licensed under the MIT License. See the LICENSE file for details.
+
+---
+
+This **`README.md`** is structured to provide comprehensive instructions and necessary details for running and maintaining the project. It can be directly added to your repository.
+
 
 
 This `README.md` is structured to provide comprehensive instructions and necessary details for running and maintaining the project. It can be directly added to your repository.
